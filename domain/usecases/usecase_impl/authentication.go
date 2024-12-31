@@ -1,14 +1,14 @@
 package usecase_impl
 
 import (
-	entities "bear/domain/entities"
-	"bear/domain/entities/rules"
-	"bear/domain/usecases"
-	"bear/infrastructure/modules/impl/http_error"
-	"bear/infrastructure/repositories"
-	"bear/infrastructure/storage"
-	"bear/settings_loader"
-	"bear/utils"
+	entities "camera/domain/entities"
+	"camera/domain/entities/rules"
+	"camera/domain/usecases"
+	"camera/infrastructure/modules/impl/http_error"
+	"camera/infrastructure/repositories"
+	"camera/infrastructure/storage"
+	"camera/settings_loader"
+	"camera/utils"
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt"
@@ -91,12 +91,12 @@ func (u authUseCase) Login(
 	securityConfig := u.settings.GetSecurityConfig()
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	tokenbear, err := at.SignedString([]byte(securityConfig.JWTSecret))
+	tokencamera, err := at.SignedString([]byte(securityConfig.JWTSecret))
 	if err != nil {
 		return nil, "", err
 	}
 
-	return user, tokenbear, nil
+	return user, tokencamera, nil
 }
 
 func (u authUseCase) RegisterUser(ctx context.Context, user entities.User) error {

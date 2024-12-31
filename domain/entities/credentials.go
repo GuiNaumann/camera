@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"bear/utils"
+	"camera/utils"
 	"time"
 )
 

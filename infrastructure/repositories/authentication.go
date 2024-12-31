@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"bear/domain/entities"
+	"camera/domain/entities"
 	"context"
 )
 

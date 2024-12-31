@@ -1,14 +1,14 @@
 package setup
 
 import (
-	"bear/domain/usecases/usecase_impl"
-	"bear/infrastructure/modules/impl/auth"
-	"bear/infrastructure/modules/impl/images"
-	product "bear/infrastructure/modules/impl/product"
-	"bear/infrastructure/repositories"
-	"bear/infrastructure/repositories/impl"
-	"bear/infrastructure/storage/sto"
-	"bear/settings_loader"
+	"camera/domain/usecases/usecase_impl"
+	"camera/infrastructure/modules/impl/auth"
+	"camera/infrastructure/modules/impl/images"
+	product "camera/infrastructure/modules/impl/product"
+	"camera/infrastructure/repositories"
+	"camera/infrastructure/repositories/impl"
+	"camera/infrastructure/storage/sto"
+	"camera/settings_loader"
 	"context"
 	"database/sql"
 	"github.com/gorilla/mux"

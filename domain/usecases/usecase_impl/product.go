@@ -1,14 +1,14 @@
 package usecase_impl
 
 import (
-	"bear/domain/entities"
-	"bear/domain/entities/rules"
-	"bear/domain/usecases"
-	"bear/domain/usecases/perm_impl"
-	"bear/infrastructure/modules/impl/http_error"
-	"bear/infrastructure/repositories"
-	"bear/infrastructure/storage"
-	"bear/settings_loader"
+	"camera/domain/entities"
+	"camera/domain/entities/rules"
+	"camera/domain/usecases"
+	"camera/domain/usecases/perm_impl"
+	"camera/infrastructure/modules/impl/http_error"
+	"camera/infrastructure/repositories"
+	"camera/infrastructure/storage"
+	"camera/settings_loader"
 	"context"
 	"fmt"
 	"github.com/google/uuid"

@@ -1,9 +1,9 @@
 package perm_impl
 
 import (
-	"bear/domain/entities"
-	"bear/domain/usecases"
-	"bear/infrastructure/modules/impl/http_error"
+	"camera/domain/entities"
+	"camera/domain/usecases"
+	"camera/infrastructure/modules/impl/http_error"
 	"context"
 )
 

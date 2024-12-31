@@ -1,10 +1,10 @@
 package impl
 
 import (
-	"bear/domain/entities"
-	"bear/infrastructure/modules/impl/http_error"
-	"bear/infrastructure/repositories"
-	"bear/settings_loader"
+	"camera/domain/entities"
+	"camera/infrastructure/modules/impl/http_error"
+	"camera/infrastructure/repositories"
+	"camera/settings_loader"
 	"context"
 	"database/sql"
 	"golang.org/x/crypto/bcrypt"

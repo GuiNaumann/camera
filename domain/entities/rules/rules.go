@@ -1,9 +1,9 @@
 package rules
 
 import (
-	"bear/domain/entities"
-	"bear/infrastructure/modules/impl/http_error"
-	"bear/utils"
+	"camera/domain/entities"
+	"camera/infrastructure/modules/impl/http_error"
+	"camera/utils"
 	"log"
 	"strings"
 )

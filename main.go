@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"bear/infrastructure"
-	"bear/settings_loader"
+	"camera/infrastructure"
+	"camera/settings_loader"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )

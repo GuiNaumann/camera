@@ -1,9 +1,9 @@
 package auth
 
 import (
-	entities "bear/domain/entities"
-	"bear/domain/usecases"
-	"bear/infrastructure/modules/impl/http_error"
+	entities "camera/domain/entities"
+	"camera/domain/usecases"
+	"camera/infrastructure/modules/impl/http_error"
 	"database/sql"
 	"encoding/json"
 	"io"

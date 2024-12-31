@@ -1,13 +1,13 @@
 package product
 
 import (
-	"bear/domain/entities"
-	"bear/domain/usecases"
+	"camera/domain/entities"
+	"camera/domain/usecases"
 	"database/sql"
 	"encoding/json"
-	//setup "bear/infrastructure"
-	au "bear/infrastructure/modules/impl/auth"
-	"bear/infrastructure/modules/impl/http_error"
+	//setup "camera/infrastructure"
+	au "camera/infrastructure/modules/impl/auth"
+	"camera/infrastructure/modules/impl/http_error"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"io"

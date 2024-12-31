@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"bear/infrastructure/modules/impl/http_error"
+	"camera/infrastructure/modules/impl/http_error"
 	"strconv"
 	"strings"
 )

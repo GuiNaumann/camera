@@ -1,6 +1,6 @@
 package entities
 
-import "bear/utils"
+import "camera/utils"
 
 const (
 	UserTypeMaster UserType = 1

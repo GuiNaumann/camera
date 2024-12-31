@@ -1,4 +1,4 @@
-module bear
+module camera
 
 go 1.20
 

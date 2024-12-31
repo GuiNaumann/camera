@@ -8,18 +8,18 @@ COOKIE_ENCRYPTION_KEY = "qN6s8veqEPaMIbIWnaF5D5rh5DyREbPumKx4BiZTGOk="
 JWT_SECRET = "2vYspjkwDmYnueR9lmXptXXOzeZUrpkW5mZIW6QwDGk="
 
 [PathConfig]
-FileServerRootPath = "C:\\dev\\bear_run\\storage"
-LogoPath = "C:\\dev\\bear_run\\resources\\logos"
-FavIconPath = "C:\\dev\\bear_run\\resources\\favicon"
-EmailImagesRootPath = "C:\\dev\\bear_run\\email\\images"
-FileServerRootPath = "C:\\dev\\bear_run\\files"  # Defina este para o local de armazenamento
+FileServerRootPath = "C:\\dev\\camera_run\\storage"
+LogoPath = "C:\\dev\\camera_run\\resources\\logos"
+FavIconPath = "C:\\dev\\camera_run\\resources\\favicon"
+EmailImagesRootPath = "C:\\dev\\camera_run\\email\\images"
+FileServerRootPath = "C:\\dev\\camera_run\\files"  # Defina este para o local de armazenamento
 RedirectUrl = "http://localhost:8080"
-HTMLRootPath = "C:\\dev\\bear_run\\resources\\html"
+HTMLRootPath = "C:\\dev\\camera_run\\resources\\html"
 
 [TLSConfig]
 IsTLS = false
-Cert = "C:\\dev\\bear_run\\certs\\server.crt"
-Key = "C:\\dev\\bear_run\\certs\\server.key"
+Cert = "C:\\dev\\camera_run\\certs\\server.crt"
+Key = "C:\\dev\\camera_run\\certs\\server.key"
 
 [ServerDomainConfig]
 ServerDomain = "localhost"

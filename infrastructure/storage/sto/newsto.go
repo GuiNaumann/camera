@@ -1,10 +1,10 @@
 package sto
 
 import (
-	"bear/infrastructure/modules/impl/http_error"
-	"bear/infrastructure/storage"
-	"bear/settings_loader"
-	"bear/utils"
+	"camera/infrastructure/modules/impl/http_error"
+	"camera/infrastructure/storage"
+	"camera/settings_loader"
+	"camera/utils"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -387,7 +387,7 @@ func (g *newStorageManager) saveImage(imageBase64 string, filePath string) (stri
 	fullFilePath := path.Join(pathConfig.FileServerRootPath, "images", filePathType)
 
 	log.Println("||||||||||||||||||||||||||||||| : ", fullFilePath)
-	// C:\dev\bear_run\storage/images/products/20193929-befc-11ef-86b0-00ff3d6dafd2.png
+	// C:\dev\camera_run\storage/images/products/20193929-befc-11ef-86b0-00ff3d6dafd2.png
 
 	err = g.DeletePath(filePath)
 	if err != nil {

@@ -1,8 +1,8 @@
 package images
 
 import (
-	"bear/infrastructure/modules/impl/http_error"
-	"bear/settings_loader"
+	"camera/infrastructure/modules/impl/http_error"
+	"camera/settings_loader"
 	"fmt"
 	"github.com/gorilla/mux"
 	"io"

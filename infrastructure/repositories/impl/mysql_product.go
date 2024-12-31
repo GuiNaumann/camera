@@ -1,11 +1,11 @@
 package impl
 
 import (
-	"bear/domain/entities"
-	"bear/infrastructure/modules/impl/http_error"
-	"bear/infrastructure/repositories"
-	"bear/settings_loader"
-	"bear/utils"
+	"camera/domain/entities"
+	"camera/infrastructure/modules/impl/http_error"
+	"camera/infrastructure/repositories"
+	"camera/settings_loader"
+	"camera/utils"
 	"context"
 	"database/sql"
 	"fmt"

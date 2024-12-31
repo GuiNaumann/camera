@@ -1,7 +1,7 @@
 package usecases
 
 import (
-	entities "bear/domain/entities"
+	entities "camera/domain/entities"
 	"context"
 )
 
