@@ -2,7 +2,7 @@ package main
 
 import (
 	"camera/domain/entities"
-	"camera/infrastructure"
+	setup "camera/infrastructure"
 	"camera/infrastructure/repositories"
 	"camera/settings_loader"
 	"context"
@@ -17,6 +17,8 @@ import (
 	"path/filepath"
 	"time"
 )
+
+const networkSharePath = `\\192.168.1.100\gravacoes` // Caminho do compartilhamento de rede
 
 func init() {
 	dir, _ := os.Getwd()
@@ -67,7 +69,6 @@ func main() {
 	settings := settings_loader.NewSettingsLoader()
 
 	// Configura o projeto chamando o Setup da infraestrutura
-	//func Setup(router *mux.Router, settings *settings_loader.SettingsLoader) (*SetupConfig, error)
 	setupConfig, err := setup.Setup(router, settings)
 	if err != nil {
 		log.Fatalf("Erro ao configurar a infraestrutura: %v", err)
@@ -116,10 +117,10 @@ func startCameraRecording(repo repositories.ProductRepository) {
 
 // Grava o stream de uma câmera
 func recordCamera(camera entities.Product) {
-	// Cria o diretório para gravação
-	dir := filepath.Join("C:\\gravacaoCameras", camera.Name)
+	// Cria o diretório no compartilhamento de rede
+	dir := filepath.Join(networkSharePath, camera.Name)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		log.Printf("Erro ao criar diretório %s: %v", dir, err)
+		log.Printf("Erro ao criar diretório na rede %s: %v", dir, err)
 		return
 	}
 
@@ -141,7 +142,8 @@ func recordCamera(camera entities.Product) {
 		"-c:a", "aac",
 		outputPath)
 
-	// Executa o comando
+	log.Printf("Iniciando gravação da câmera: %s", camera.Name)
+
 	if err := cmd.Run(); err != nil {
 		log.Printf("Erro ao gravar câmera %s: %v", camera.Name, err)
 		return

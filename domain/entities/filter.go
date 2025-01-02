@@ -27,6 +27,10 @@ type GeneralFilter struct {
 
 	//Status situation number
 	Status int64
+
+	IDLocal int64
+
+	ScreenCount int64 // Número de telas para limitar os resultados
 }
 
 // FilterUserAccess - Used to receive the filters to modal of access

@@ -66,6 +66,7 @@ func (c productRepository) CreateProductRepository(ctx context.Context, camera e
 	err = stmt.QueryRowContext(
 		ctx,
 		user.ID,
+		camera.LocalID,
 		camera.Name,
 		camera.Description,
 		camera.IPAddress,
@@ -91,6 +92,24 @@ func (c productRepository) CreateProductRepository(ctx context.Context, camera e
 	log.Printf("Câmera inserida com sucesso: ID %d", cameraID)
 
 	return cameraID, nil
+}
+
+func (c productRepository) CheckLocalExist(ctx context.Context, localID int64) bool {
+	// Define a consulta SQL para verificar se o local existe
+	query := `
+		SELECT COUNT(1)
+		FROM local
+		WHERE id = $1 AND is_active = TRUE AND c.status_code = 0
+	`
+
+	var count int
+	err := c.conn.QueryRowContext(ctx, query, localID).Scan(&count)
+	if err != nil {
+		log.Printf("[CheckLocalExist] Erro ao verificar o local com ID %d: %v", localID, err)
+		return false
+	}
+
+	return count > 0
 }
 
 func (c productRepository) SetProductStatusCode(ctx context.Context, productID int64, statusCode entities.StatusCode) error {
@@ -120,6 +139,7 @@ func (c productRepository) ListProductRepository(
 	    SELECT COUNT(*)
 	    FROM camera
 	    WHERE is_active = true
+	      AND c.status_code = 0
 	      AND id_user = $1`
 
 	//language=sql
@@ -139,22 +159,35 @@ func (c productRepository) ListProductRepository(
 	                c.modified_at
 	FROM camera c
 	WHERE c.is_active = true
+	  AND c.status_code = 0
 	  AND c.id_user = $1`
 
 	trimSearch := strings.TrimSpace(filter.Search)
 	var searchContaining string
+	var queryParams []interface{}
+	queryParams = append(queryParams, user.ID) // Adiciona id_user ao início dos parâmetros
 
+	// Adiciona filtro por nome (search)
 	if trimSearch != "" {
 		searchContaining = "%" + strings.ToLower(trimSearch) + "%"
 		query += ` AND LOWER(c.name) LIKE $2`
 		queryCount += " AND LOWER(name) LIKE $2"
+		queryParams = append(queryParams, searchContaining)
 	}
 
+	// Adiciona filtro por local
+	if filter.IDLocal > 0 {
+		query += ` AND c.id_local = $3`
+		queryCount += ` AND id_local = $3`
+		queryParams = append(queryParams, filter.IDLocal)
+	}
+
+	// Ordena por data de modificação mais recente
 	query += ` ORDER BY c.modified_at DESC`
 
-	if filter.Limit > 0 {
-		firstItem := filter.Page * filter.Limit
-		query += fmt.Sprintf(" LIMIT %d OFFSET %d", filter.Limit, firstItem)
+	// Aplica o limite de telas (screenCount) se especificado
+	if filter.ScreenCount > 0 {
+		query += fmt.Sprintf(" LIMIT %d", filter.ScreenCount)
 	}
 
 	stmt, err := c.conn.PrepareContext(ctx, query)
@@ -164,12 +197,7 @@ func (c productRepository) ListProductRepository(
 	}
 	defer stmt.Close()
 
-	var rows *sql.Rows
-	if trimSearch != "" {
-		rows, err = stmt.QueryContext(ctx, user.ID, searchContaining)
-	} else {
-		rows, err = stmt.QueryContext(ctx, user.ID)
-	}
+	rows, err := stmt.QueryContext(ctx, queryParams...)
 	if err != nil {
 		log.Println("[ListCameraRepository] Error QueryContext", err)
 		return nil, http_error.NewUnexpectedError(http_error.Unexpected)
@@ -209,11 +237,7 @@ func (c productRepository) ListProductRepository(
 	defer stmtCount.Close()
 
 	var totalCount int64
-	if trimSearch != "" {
-		err = stmtCount.QueryRowContext(ctx, user.ID, searchContaining).Scan(&totalCount)
-	} else {
-		err = stmtCount.QueryRowContext(ctx, user.ID).Scan(&totalCount)
-	}
+	err = stmtCount.QueryRowContext(ctx, queryParams...).Scan(&totalCount)
 	if err != nil {
 		log.Println("[ListCameraRepository] Error stmtCount Scan", err)
 		return nil, http_error.NewUnexpectedError(http_error.Unexpected)
@@ -350,12 +374,9 @@ func (c productRepository) CreateLocalRepository(ctx context.Context, local enti
 		state,
 		city,
 		street,
-		number,
-		zip_code,
-		complement,
 		is_active
 	)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
+	VALUES ($1, $2, $3, $4, $5, $6, true)
 	RETURNING id
 	`
 
@@ -380,9 +401,6 @@ func (c productRepository) CreateLocalRepository(ctx context.Context, local enti
 		local.State,
 		local.City,
 		local.Street,
-		local.Number,
-		local.ZipCode,
-		local.Complement,
 	).Scan(&localID)
 
 	if err != nil {
@@ -438,9 +456,6 @@ func (c productRepository) ListLocalRepository(
 	                l.state,
 	                l.city,
 	                l.street,
-	                l.number,
-	                l.zip_code,
-	                l.complement,
 	                l.is_active,
 	                l.status_code,
 	                l.created_at,
@@ -494,9 +509,6 @@ func (c productRepository) ListLocalRepository(
 			&local.State,
 			&local.City,
 			&local.Street,
-			&local.Number,
-			&local.ZipCode,
-			&local.Complement,
 			&local.IsActive,
 			&local.StatusCode,
 			&local.CreatedAt,
@@ -544,9 +556,6 @@ func (c productRepository) GetLocalByIdRepository(ctx context.Context, localID i
 	       l.state,
 	       l.city,
 	       l.street,
-	       l.number,
-	       l.zip_code,
-	       l.complement,
 	       l.is_active,
 	       l.status_code,
 	       l.created_at,
@@ -564,9 +573,6 @@ func (c productRepository) GetLocalByIdRepository(ctx context.Context, localID i
 		&local.State,
 		&local.City,
 		&local.Street,
-		&local.Number,
-		&local.ZipCode,
-		&local.Complement,
 		&local.IsActive,
 		&local.StatusCode,
 		&local.CreatedAt,
@@ -593,12 +599,9 @@ func (c productRepository) EditLocalRepository(ctx context.Context, local entiti
 	    state = $3,
 	    city = $4,
 	    street = $5,
-	    number = $6,
-	    zip_code = $7,
-	    complement = $8,
-	    is_active = $9,
-	    id_user = $10
-	WHERE id = $11`
+	    is_active = $6,
+	    id_user = $7
+	WHERE id = $8`
 
 	_, err := c.conn.ExecContext(ctx,
 		command,
@@ -607,9 +610,6 @@ func (c productRepository) EditLocalRepository(ctx context.Context, local entiti
 		local.State,
 		local.City,
 		local.Street,
-		local.Number,
-		local.ZipCode,
-		local.Complement,
 		local.IsActive,
 		user.ID,
 		local.Id,
@@ -714,7 +714,6 @@ func (c productRepository) ListCameraStreams(
 // TODO: ================================================================================================================
 // TODO: ================================================================================================================
 // TODO: ================================================================================================================
-
 // TODO: ================================================================================================================
 // TODO: NAO SERÁ USADO =================================================================================================
 // TODO: ================================================================================================================

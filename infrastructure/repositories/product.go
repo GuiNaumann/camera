@@ -9,6 +9,8 @@ type ProductRepository interface {
 	//CreateProductRepository - Create Product and return id of product
 	CreateProductRepository(ctx context.Context, product entities.Product, user entities.User) (int64, error)
 
+	CheckLocalExist(ctx context.Context, localID int64) bool
+
 	SetProductStatusCode(ctx context.Context, productID int64, statusCode entities.StatusCode) error
 
 	//ListProductRepository Return a list of all Product with status code 0

@@ -5,6 +5,7 @@ import (
 	"camera/domain/entities/rules"
 	"camera/domain/usecases"
 	"camera/domain/usecases/perm_impl"
+	"camera/infrastructure/modules/impl/http_error"
 	"camera/infrastructure/repositories"
 	"camera/infrastructure/storage"
 	"camera/settings_loader"
@@ -36,6 +37,13 @@ func (c productUseCase) CreateProductUseCase(ctx context.Context, user entities.
 	if err != nil {
 		log.Println("[CreateProductUseCase] Error productRules", err)
 		return 0, err
+	}
+
+	products := c.repo.CheckLocalExist(ctx, product.LocalID)
+
+	if product.LocalID == 0 || !products {
+		log.Println("[CreateProductUseCase] Error Local não existe", err)
+		return 0, http_error.NewUnauthorizedError("Local não existe")
 	}
 
 	id, err := c.repo.CreateProductRepository(ctx, product, user)
@@ -84,6 +92,13 @@ func (c productUseCase) EditProductUseCase(ctx context.Context, user entities.Us
 	if err != nil {
 		log.Println("[EditProductUseCase] Error SetProductStatusCode", err)
 		return err
+	}
+
+	products := c.repo.CheckLocalExist(ctx, product.LocalID)
+
+	if product.LocalID == 0 || !products {
+		log.Println("[EditProductUseCase] Error Local não existe", err)
+		return http_error.NewUnauthorizedError("Local não existe")
 	}
 
 	return c.repo.EditProductRepository(ctx, product, user)

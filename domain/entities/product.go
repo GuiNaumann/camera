@@ -69,18 +69,9 @@ type Local struct {
 	// Street - Rua onde o Local está
 	Street string `json:"street"`
 
-	// Number - Número do Local
-	Number string `json:"number"`
-
 	IsActive bool `json:"isActive"`
 
 	StatusCode int `json:"statusCode"`
-
-	// ZipCode - CEP do Local
-	ZipCode string `json:"zipCode,omitempty"`
-
-	// Complement - Complemento do Endereço
-	Complement string `json:"complement,omitempty"`
 
 	// CreatedAt - Data de Criação do Local
 	CreatedAt time.Time `json:"createdAt"`

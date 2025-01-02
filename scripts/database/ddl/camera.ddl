@@ -16,3 +16,10 @@ CREATE TABLE camera
     modified_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT fk_user_camera FOREIGN KEY (id_user) REFERENCES "user" (id)
 );
+
+
+ALTER TABLE camera
+    ADD COLUMN id_local INT;
+
+ALTER TABLE camera
+    ADD CONSTRAINT fk_local_product FOREIGN KEY (id_local) REFERENCES local (id);

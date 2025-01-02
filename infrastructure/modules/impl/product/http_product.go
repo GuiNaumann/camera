@@ -61,6 +61,10 @@ func (c *ProductModule) Setup(router *mux.Router) {
 	privateRoutes.HandleFunc("/list/read-product", c.listReadProduct).Methods(http.MethodGet)
 }
 
+//TODO:=================================================================================================================
+//TODO:================================== CAMERA =======================================================================
+//TODO:=================================================================================================================
+
 func (c *ProductModule) createProduct(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -138,6 +142,26 @@ func (c *ProductModule) listProduct(w http.ResponseWriter, r *http.Request) {
 		log.Println("[listProduct] Error invalidParameter", err)
 		http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidParameter))
 		return
+	}
+
+	idLocal := r.URL.Query().Get("idLocal")
+	if idLocal != "" {
+		filter.IDLocal, err = strconv.ParseInt(idLocal, 10, 64)
+		if err != nil {
+			log.Println("[listProduct] Error ParseInt idLocal", err)
+			http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidParameter))
+			return
+		}
+	}
+
+	screenCount := r.URL.Query().Get("screenCount")
+	if screenCount != "" {
+		filter.ScreenCount, err = strconv.ParseInt(screenCount, 10, 64)
+		if err != nil {
+			log.Println("[listProduct] Error ParseInt screenCount", err)
+			http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidParameter))
+			return
+		}
 	}
 
 	ctx := r.Context()
@@ -276,6 +300,10 @@ func (c *ProductModule) deleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+//TODO:=================================================================================================================
+//TODO:================================== LOCAL ========================================================================
+//TODO:=================================================================================================================
 
 func (c *ProductModule) createLocal(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
