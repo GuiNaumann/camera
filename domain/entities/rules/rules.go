@@ -142,12 +142,7 @@ func CheckValidPassword(password string) bool {
 }
 
 func ProductRules(product *entities.Product) error {
-	product.ImageBase64 = strings.TrimSpace(product.ImageBase64)
 	product.Name = strings.TrimSpace(product.Name)
-
-	if product.ImageBase64 == "" {
-		return http_error.NewBadRequestError(http_error.EmptyImageError)
-	}
 
 	if product.Name == "" {
 		return http_error.NewBadRequestError(http_error.EmptyProductFieldError)
@@ -157,6 +152,26 @@ func ProductRules(product *entities.Product) error {
 }
 
 func ProductRulesEdite(product *entities.Product) error {
+	product.Name = strings.TrimSpace(product.Name)
+
+	if product.Name == "" {
+		return http_error.NewBadRequestError(http_error.EmptyProductFieldError)
+	}
+
+	return nil
+}
+
+func LocalRules(product *entities.Local) error {
+	product.Name = strings.TrimSpace(product.Name)
+
+	if product.Name == "" {
+		return http_error.NewBadRequestError(http_error.EmptyProductFieldError)
+	}
+
+	return nil
+}
+
+func LocalRulesEdite(product *entities.Local) error {
 	product.Name = strings.TrimSpace(product.Name)
 
 	if product.Name == "" {

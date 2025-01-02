@@ -23,7 +23,7 @@ type ProductModule struct {
 }
 
 func (c *ProductModule) Path() string {
-	return "/product"
+	return "/camera"
 }
 
 func (c *ProductModule) Setup(router *mux.Router) {
@@ -32,11 +32,30 @@ func (c *ProductModule) Setup(router *mux.Router) {
 
 	privateRoutes := router.PathPrefix(c.Path()).Subrouter()
 
+	//TODO:=============================================================================================================
+	// TODO: SERA ULTILIZADO PRODUTOS, MAS SERÁ REFERENTE AS CAMERAS ===================================================
+	//TODO:=============================================================================================================
+
 	privateRoutes.HandleFunc("/create", c.createProduct).Methods(http.MethodPost)
 	privateRoutes.HandleFunc("/list", c.listProduct).Methods(http.MethodGet)
 	privateRoutes.HandleFunc("/get/{productID}", c.getProductById).Methods(http.MethodGet)
 	privateRoutes.HandleFunc("/update/{productID}", c.updateProduct).Methods(http.MethodPost)
 	privateRoutes.HandleFunc("/delete/{productID}", c.deleteProduct).Methods(http.MethodDelete)
+
+	//TODO:=============================================================================================================
+	//TODO: LOCAL ======================================================================================================
+	//TODO:=============================================================================================================
+
+	privateRoutes.HandleFunc("/local/create", c.createLocal).Methods(http.MethodPost)
+	privateRoutes.HandleFunc("/local/list", c.listLocal).Methods(http.MethodGet)
+	privateRoutes.HandleFunc("/local/get/{localID}", c.getLocalById).Methods(http.MethodGet)
+	privateRoutes.HandleFunc("/local/update/{localID}", c.updateLocal).Methods(http.MethodPost)
+	privateRoutes.HandleFunc("/local/delete/{localID}", c.deleteLocal).Methods(http.MethodDelete)
+
+	//TODO:=============================================================================================================
+	//TODO:=============================================================================================================
+	//TODO:=============================================================================================================
+
 	privateRoutes.HandleFunc("/read-product", c.readProduct).Methods(http.MethodPost)
 	privateRoutes.HandleFunc("/read-product/delete/{productID}", c.deleteReadProduct).Methods(http.MethodPost)
 	privateRoutes.HandleFunc("/list/read-product", c.listReadProduct).Methods(http.MethodGet)
@@ -258,6 +277,226 @@ func (c *ProductModule) deleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (c *ProductModule) createLocal(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println("[createLocal] Error ReadAll", err)
+		http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidRequestBody))
+		return
+	}
+
+	var local entities.Local
+	err = json.Unmarshal(body, &local)
+	if err != nil {
+		log.Println("[createLocal] Error Unmarshal", err)
+		http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidRequestBody))
+		return
+	}
+
+	ctx := r.Context()
+	user := ctx.Value(au.CtxUserKey).(*entities.User)
+	ProductID, err := c.ProductUseCase.CreateLocalUseCase(ctx, *user, local)
+	if err != nil {
+		log.Println("[createLocal] Error CreateProductUseCase", err)
+		http_error.HandleError(w, err)
+		return
+	}
+
+	b, err := json.Marshal(ProductID)
+	if err != nil {
+		log.Println("[createLocal] Error Marshal", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+
+	_, err = w.Write(b)
+	if err != nil {
+		log.Println("[createLocal] Error Write", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+}
+
+func (c *ProductModule) listLocal(w http.ResponseWriter, r *http.Request) {
+	var filter entities.GeneralFilter
+	var err error
+
+	page := r.URL.Query().Get("page")
+	if page != "" {
+		filter.Page, err = strconv.ParseInt(page, 10, 64)
+		if err != nil {
+			log.Println("[listLocal] Error ParseInt page", err)
+			http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidParameter))
+			return
+		}
+	}
+
+	limit := r.URL.Query().Get("limit")
+	if limit != "" {
+		filter.Limit, err = strconv.ParseInt(limit, 10, 64)
+		if err != nil {
+			http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidParameter))
+			log.Println("[listLocal] Error ParseInt limit", err)
+			return
+		}
+	}
+
+	filter.Column = r.URL.Query().Get("orderBy")
+
+	ordinationAsc := r.URL.Query().Get("ordinationAsc")
+	if ordinationAsc == "true" {
+		filter.OrdinationAsc = true
+	}
+
+	filter.Search = r.URL.Query().Get("search")
+
+	if filter.Limit == 0 && filter.Page != 0 {
+		log.Println("[listLocal] Error invalidParameter", err)
+		http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidParameter))
+		return
+	}
+
+	ctx := r.Context()
+	user := ctx.Value(au.CtxUserKey).(*entities.User)
+	response, err := c.ProductUseCase.ListLocalUseCase(ctx, *user, filter)
+	if err != nil {
+		log.Println("[listLocal] Error ListProductUseCase", err)
+		http_error.HandleError(w, err)
+		return
+	}
+
+	b, err := json.Marshal(response)
+	if err != nil {
+		log.Println("[listLocal] Error Marshal", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+
+	_, err = w.Write(b)
+	if err != nil {
+		log.Println("[listLocal] Error Write", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+}
+
+func (c *ProductModule) getLocalById(w http.ResponseWriter, r *http.Request) {
+	localID, err := strconv.Atoi(mux.Vars(r)["localID"])
+	if err != nil {
+		log.Println("[getLocalById] Error Atoi localID", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+
+	ctx := r.Context()
+	user := ctx.Value(au.CtxUserKey).(*entities.User)
+	local, err := c.ProductUseCase.GetLocalByIdUseCase(ctx, *user, int64(localID))
+	if err != nil {
+		log.Println("[getLocalById] Error GetproductByIdUseCase", err)
+		http_error.HandleError(w, err)
+		return
+	}
+
+	b, err := json.Marshal(local)
+	if err != nil {
+		log.Println("[getLocalById] Error Marshal", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+
+	_, err = w.Write(b)
+	if err != nil {
+		log.Println("[getLocalById] Error Write", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+}
+
+func (c *ProductModule) updateLocal(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println("[updateLocal] Error ReadAll", err)
+		http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidLocal))
+		return
+	}
+
+	var local entities.Local
+	err = json.Unmarshal(body, &local)
+	if err != nil {
+		log.Println("[updateLocal] Error Unmarshal", err)
+		http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidLocal))
+		return
+	}
+
+	localID, err := strconv.Atoi(mux.Vars(r)["localID"])
+	if err != nil {
+		log.Println("[updateLocal] Error Atoi localID", err)
+		http_error.HandleError(w, http_error.NewBadRequestError(http_error.InvalidParameter))
+		return
+	}
+
+	local.Id = int64(localID)
+	ctx := r.Context()
+	user := ctx.Value(au.CtxUserKey).(*entities.User)
+
+	err = c.ProductUseCase.EditLocalUseCase(ctx, *user, local)
+	if err != nil {
+		log.Println("[updateLocal] Error EditLocalUseCase", err)
+		http_error.HandleError(w, err)
+		return
+	}
+
+	b, err := json.Marshal(entities.NewSuccessfulRequest())
+	if err != nil {
+		log.Println("[updateLocal] Error Marshal", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+
+	_, err = w.Write(b)
+	if err != nil {
+		log.Println("[updateLocal] Error Write", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+}
+
+func (c *ProductModule) deleteLocal(w http.ResponseWriter, r *http.Request) {
+	localID, err := strconv.ParseInt(mux.Vars(r)["localID"], 10, 64)
+	if err != nil {
+		log.Println("[deleteLocal] Error Atoi localID", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+
+	ctx := r.Context()
+	user := ctx.Value(au.CtxUserKey).(*entities.User)
+	err = c.ProductUseCase.DeleteLocalUseCase(ctx, *user, localID)
+	if err != nil {
+		log.Println("[deleteLocal] Error DeleteLocalUseCase", err)
+		http_error.HandleError(w, err)
+		return
+	}
+
+	b, err := json.Marshal(entities.NewSuccessfulRequest())
+	if err != nil {
+		log.Println("[deleteLocal] Error Marshal", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+
+	_, err = w.Write(b)
+	if err != nil {
+		log.Println("[deleteLocal] Error Write", err)
+		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
+		return
+	}
+}
+
+// TODO:=================================================================================================================
+// TODO:=================================================================================================================
+// TODO:=================================================================================================================
+// TODO:=================================================================================================================
 func (c *ProductModule) readProduct(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

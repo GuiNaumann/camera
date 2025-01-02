@@ -61,6 +61,54 @@ func (c productPermUseCase) DeleteProductUseCase(ctx context.Context, user entit
 	return c.perm.DeleteProductUseCase(ctx, user, productID)
 }
 
+func (c productPermUseCase) CreateLocalUseCase(ctx context.Context, user entities.User, product entities.Local) (int64, error) {
+	if !user.IsMaster() && !user.IsFlat3() && !user.IsFlat2() && !user.IsFlat1() {
+		return 0, http_error.NewUnauthorizedError(http_error.Unauthorized)
+	}
+
+	return c.perm.CreateLocalUseCase(ctx, user, product)
+}
+
+func (c productPermUseCase) ListLocalUseCase(
+	ctx context.Context,
+	user entities.User,
+	filter entities.GeneralFilter,
+) (*entities.PaginatedListUpdated[entities.Local], error) {
+	if user.IsMaster() || user.IsFlat3() || user.IsFlat2() || user.IsFlat1() {
+		return c.perm.ListLocalUseCase(ctx, user, filter)
+	}
+
+	return nil, http_error.NewUnauthorizedError(http_error.Unauthorized)
+}
+
+func (c productPermUseCase) GetLocalByIdUseCase(ctx context.Context, user entities.User, productID int64) (*entities.Local, error) {
+	if user.IsMaster() || user.IsFlat3() || user.IsFlat2() || user.IsFlat1() {
+		return c.perm.GetLocalByIdUseCase(ctx, user, productID)
+	}
+
+	return nil, http_error.NewUnauthorizedError(http_error.Unauthorized)
+}
+
+func (c productPermUseCase) EditLocalUseCase(ctx context.Context, user entities.User, product entities.Local) error {
+	if !user.IsMaster() && !user.IsFlat3() && !user.IsFlat2() && !user.IsFlat1() {
+		return http_error.NewUnauthorizedError(http_error.Unauthorized)
+	}
+
+	return c.perm.EditLocalUseCase(ctx, user, product)
+}
+
+func (c productPermUseCase) DeleteLocalUseCase(ctx context.Context, user entities.User, productID int64) error {
+	if !user.IsMaster() && !user.IsFlat3() && !user.IsFlat2() && !user.IsFlat1() {
+		return http_error.NewUnauthorizedError(http_error.Unauthorized)
+	}
+
+	return c.perm.DeleteLocalUseCase(ctx, user, productID)
+}
+
+// TODO:
+// TODO:
+// TODO:
+// TODO:
 func (c productPermUseCase) SetParamiter(ctx context.Context, user entities.User, productID int64) error {
 	if !user.IsMaster() && !user.IsFlat3() && !user.IsFlat2() && !user.IsFlat1() {
 		return http_error.NewUnauthorizedError(http_error.Unauthorized)

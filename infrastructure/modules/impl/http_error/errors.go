@@ -22,6 +22,7 @@ const (
 	PasswordDoesntMatch      = "A senha não confere."
 	InvalidRequestBody       = "Corpo da requisição não é válido."
 	InvalidProduct           = "Produto inválido."
+	InvalidLocal             = "local inválido."
 	InvalidEquipment         = "Equipamento inválido."
 	Unauthorized             = "Você não tem permissão para acessar esse recurso."
 	EmptyURLFieldError       = "URL não pode ser vazio."
@@ -31,6 +32,8 @@ const (
 	InvalidMetadata          = "Metadata inválida."
 	InvalidImageExtension    = "Extensão de imagem inválida."
 	EquipmentNotFound        = "Equipamento não encontrado."
+	CameraNotFound           = "Camera não encontrada."
+	LocalNotFound            = "Local não encontrado"
 	EmptyEquipmentFieldError = "Nome do equipamento não pode ser vazio."
 	ProductIDEmpty           = "produto não pode ser vazio."
 )

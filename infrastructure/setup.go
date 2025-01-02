@@ -23,7 +23,8 @@ import (
 
 // DB é a variável global para a conexão ao banco
 type SetupConfig struct {
-	DB *sql.DB
+	DB                *sql.DB
+	ProductRepository repositories.ProductRepository
 }
 
 // NewDatabaseConnection cria uma nova conexão com o banco de dados
@@ -61,7 +62,10 @@ func Setup(router *mux.Router, settings *settings_loader.SettingsLoader) (*Setup
 		return nil, err
 	}
 
-	// Inicializar o módulo de autenticação
+	// Inicialize o repositório de produtos (câmeras)
+	productRepo := impl.NewProductRepository(db, *settings)
+
+	// Inicializar módulos e rotas
 	SetupAuthModule(router, db, settings)
 
 	// Configurar rotas privadas
@@ -69,7 +73,10 @@ func Setup(router *mux.Router, settings *settings_loader.SettingsLoader) (*Setup
 
 	SetupFileModule(router, settings)
 
-	return &SetupConfig{DB: db}, nil
+	return &SetupConfig{
+		DB:                db,
+		ProductRepository: productRepo,
+	}, nil
 }
 
 // SetupAuthModule configura as rotas de autenticação

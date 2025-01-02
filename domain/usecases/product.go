@@ -25,6 +25,22 @@ type ProductUseCase interface {
 	//DeleteProduct - delete an Clertificate
 	DeleteProductUseCase(ctx context.Context, user entities.User, productID int64) error
 
+	CreateLocalUseCase(ctx context.Context, user entities.User, lcoal entities.Local) (int64, error)
+
+	ListLocalUseCase(
+		ctx context.Context,
+		user entities.User,
+		filter entities.GeneralFilter,
+	) (*entities.PaginatedListUpdated[entities.Local], error)
+
+	GetLocalByIdUseCase(ctx context.Context, user entities.User, localID int64) (*entities.Local, error)
+
+	EditLocalUseCase(ctx context.Context, user entities.User, local entities.Local) error
+
+	DeleteLocalUseCase(ctx context.Context, user entities.User, localID int64) error
+
+	//TODO:
+
 	SetParamiter(ctx context.Context, user entities.User, productID int64) error
 
 	DeleteReadProduct(ctx context.Context, user entities.User, productID int64) error
