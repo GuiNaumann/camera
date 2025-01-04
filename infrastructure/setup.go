@@ -4,7 +4,7 @@ import (
 	"camera/domain/usecases/usecase_impl"
 	"camera/infrastructure/modules/impl/auth"
 	"camera/infrastructure/modules/impl/images"
-	product "camera/infrastructure/modules/impl/product"
+	"camera/infrastructure/modules/impl/product"
 	"camera/infrastructure/repositories"
 	"camera/infrastructure/repositories/impl"
 	"camera/infrastructure/storage/sto"

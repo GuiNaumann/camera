@@ -137,10 +137,10 @@ func (c productRepository) ListProductRepository(
 	//language=sql
 	queryCount := `
 	    SELECT COUNT(*)
-	    FROM camera
-	    WHERE is_active = true
+	    FROM camera c
+	    WHERE c.is_active = true
 	      AND c.status_code = 0
-	      AND id_user = $1`
+	      AND c.id_user = $1`
 
 	//language=sql
 	query := `
@@ -171,14 +171,14 @@ func (c productRepository) ListProductRepository(
 	if trimSearch != "" {
 		searchContaining = "%" + strings.ToLower(trimSearch) + "%"
 		query += ` AND LOWER(c.name) LIKE $2`
-		queryCount += " AND LOWER(name) LIKE $2"
+		queryCount += " AND LOWER(c.name) LIKE $2"
 		queryParams = append(queryParams, searchContaining)
 	}
 
 	// Adiciona filtro por local
 	if filter.IDLocal > 0 {
 		query += ` AND c.id_local = $3`
-		queryCount += ` AND id_local = $3`
+		queryCount += ` AND c.id_local = $3`
 		queryParams = append(queryParams, filter.IDLocal)
 	}
 

@@ -12,7 +12,6 @@ FileServerRootPath = "C:\\dev\\camera_run\\storage"
 LogoPath = "C:\\dev\\camera_run\\resources\\logos"
 FavIconPath = "C:\\dev\\camera_run\\resources\\favicon"
 EmailImagesRootPath = "C:\\dev\\camera_run\\email\\images"
-FileServerRootPath = "C:\\dev\\camera_run\\files"  # Defina este para o local de armazenamento
 RedirectUrl = "http://localhost:8080"
 HTMLRootPath = "C:\\dev\\camera_run\\resources\\html"
 

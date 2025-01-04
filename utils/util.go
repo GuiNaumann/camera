@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"camera/domain/entities"
 	"fmt"
 	"github.com/leekchan/accounting"
 	"golang.org/x/text/runes"
@@ -241,14 +240,4 @@ func AccentRegex(term string) string {
 	}
 
 	return term
-}
-
-func GenerateRTSPURL(camera entities.Product) string {
-	return fmt.Sprintf("rtsp://%s:%s@%s:%d%s",
-		camera.Username,
-		camera.Password,
-		camera.IPAddress,
-		camera.Port,
-		camera.StreamPath,
-	)
 }
