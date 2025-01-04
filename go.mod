@@ -17,7 +17,6 @@ require (
 	github.com/liujiawm/graphics-go v0.0.0-20200331105750-879216a3393f
 	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/sftp v1.13.7
 	github.com/rs/cors v1.11.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	golang.org/x/crypto v0.28.0
@@ -26,8 +25,7 @@ require (
 
 require (
 	github.com/cockroachdb/apd v1.1.0 // indirect
-	github.com/kr/fs v0.1.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	github.com/stretchr/testify v1.8.0 // indirect
 )

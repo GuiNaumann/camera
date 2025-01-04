@@ -25,7 +25,7 @@ func NewProductRepository(
 	}
 }
 
-type productRepository struct {
+type productRepository struct {	
 	settings settings_loader.SettingsLoader
 	conn     *sql.DB
 }
