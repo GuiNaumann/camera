@@ -31,7 +31,7 @@ type Product struct {
 
 	//todo: add ---------------------------------------------
 
-	IPAddress string `json:"ip_address"`
+	IPAddress string `json:"ipAddress"`
 
 	Port int `json:"port"`
 
@@ -39,9 +39,9 @@ type Product struct {
 
 	Password string `json:"password"`
 
-	StreamPath string `json:"stream_path"`
+	StreamPath string `json:"streamPath"`
 
-	CameraType string `json:"camera_type"` // Intelbras ou Yoosee
+	CameraType string `json:"cameraType"` // Intelbras ou Yoosee
 
 	LocalID int64 `json:"localID"`
 }
@@ -67,7 +67,7 @@ type Local struct {
 	City string `json:"city"`
 
 	// Street - Rua onde o Local está
-	Street string `json:"street"`
+	Street string `json:"address"`
 
 	IsActive bool `json:"isActive"`
 

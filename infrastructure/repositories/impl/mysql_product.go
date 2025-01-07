@@ -25,7 +25,7 @@ func NewProductRepository(
 	}
 }
 
-type productRepository struct {	
+type productRepository struct {
 	settings settings_loader.SettingsLoader
 	conn     *sql.DB
 }
@@ -99,7 +99,7 @@ func (c productRepository) CheckLocalExist(ctx context.Context, localID int64) b
 	query := `
 		SELECT COUNT(1)
 		FROM local
-		WHERE id = $1 AND is_active = TRUE AND c.status_code = 0
+		WHERE id = $1 AND is_active = TRUE AND status_code = 0
 	`
 
 	var count int
@@ -312,10 +312,9 @@ func (c productRepository) EditProductRepository(ctx context.Context, camera ent
 	    password = $6,
 	    stream_path = $7,
 	    camera_type = $8,
-	    is_active = $9,
-	    id_user = $10
-	    id_local = $11
-	WHERE id = $12`
+	    id_user = $9,
+	    id_local = $10
+	WHERE id = $11`
 
 	_, err := c.conn.ExecContext(ctx,
 		command,
@@ -327,7 +326,6 @@ func (c productRepository) EditProductRepository(ctx context.Context, camera ent
 		camera.Password,
 		camera.StreamPath,
 		camera.CameraType,
-		camera.IsActive,
 		user.ID,
 		camera.LocalID,
 		camera.Id,
@@ -476,7 +474,10 @@ func (c productRepository) ListLocalRepository(
 	query += ` ORDER BY l.modified_at DESC`
 
 	if filter.Limit > 0 {
-		firstItem := filter.Page * filter.Limit
+		firstItem := (filter.Page - 1) * filter.Limit // Corrige a lógica para página 1
+		if firstItem < 0 {
+			firstItem = 0 // Evita números negativos
+		}
 		query += fmt.Sprintf(" LIMIT %d OFFSET %d", filter.Limit, firstItem)
 	}
 
@@ -599,9 +600,8 @@ func (c productRepository) EditLocalRepository(ctx context.Context, local entiti
 	    state = $3,
 	    city = $4,
 	    street = $5,
-	    is_active = $6,
-	    id_user = $7
-	WHERE id = $8`
+	    id_user = $6
+	WHERE id = $7`
 
 	_, err := c.conn.ExecContext(ctx,
 		command,
@@ -610,7 +610,6 @@ func (c productRepository) EditLocalRepository(ctx context.Context, local entiti
 		local.State,
 		local.City,
 		local.Street,
-		local.IsActive,
 		user.ID,
 		local.Id,
 	)

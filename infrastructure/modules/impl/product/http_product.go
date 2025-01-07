@@ -5,6 +5,10 @@ import (
 	"camera/domain/usecases"
 	"database/sql"
 	"encoding/json"
+	"os/exec"
+	"regexp"
+	"strings"
+
 	//setup "camera/infrastructure"
 	au "camera/infrastructure/modules/impl/auth"
 	"camera/infrastructure/modules/impl/http_error"
@@ -51,6 +55,8 @@ func (c *ProductModule) Setup(router *mux.Router) {
 	privateRoutes.HandleFunc("/local/get/{localID}", c.getLocalById).Methods(http.MethodGet)
 	privateRoutes.HandleFunc("/local/update/{localID}", c.updateLocal).Methods(http.MethodPost)
 	privateRoutes.HandleFunc("/local/delete/{localID}", c.deleteLocal).Methods(http.MethodDelete)
+
+	privateRoutes.HandleFunc("/scan", scanNetwork)
 
 	//TODO:=============================================================================================================
 	//TODO:=============================================================================================================
@@ -691,4 +697,62 @@ func (c *ProductModule) listReadProduct(w http.ResponseWriter, r *http.Request) 
 		http_error.HandleError(w, http_error.NewUnexpectedError(http_error.Unexpected))
 		return
 	}
+}
+func scanNetwork(w http.ResponseWriter, r *http.Request) {
+	cmd := exec.Command("arp", "-a")
+	output, err := cmd.Output()
+	if err != nil {
+		log.Printf("Erro ao executar comando ARP: %v\n", err)
+		http.Error(w, "Erro ao escanear a rede", http.StatusInternalServerError)
+		return
+	}
+
+	// Log para depuração
+	log.Printf("Saída do comando ARP:\n%s", string(output))
+
+	// Processa o resultado do comando
+	devices := parseArpOutput(string(output))
+
+	if len(devices) == 0 {
+		log.Println("Nenhum dispositivo encontrado na rede.")
+		http.Error(w, "Nenhum dispositivo encontrado na rede", http.StatusNotFound)
+		return
+	}
+
+	// Retorna os dispositivos encontrados no formato JSON
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(devices); err != nil {
+		log.Printf("Erro ao codificar JSON: %v", err)
+		http.Error(w, "Erro ao processar dispositivos", http.StatusInternalServerError)
+	}
+}
+
+func parseArpOutput(output string) []Device {
+	lines := strings.Split(output, "\n")
+	var devices []Device
+
+	// Remove caracteres indesejados e normaliza os espaços
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		line = strings.ReplaceAll(line, "  ", " ") // Reduz espaços duplicados
+
+		// Regex ajustado para capturar IP, MAC e tipo
+		re := regexp.MustCompile(`(?i)(\d{1,3}(\.\d{1,3}){3})\s+([\da-fA-F:-]{17}|<unreachable>)\s+(din.mico|est.tico)`)
+		matches := re.FindStringSubmatch(line)
+		if len(matches) >= 4 {
+			ip := matches[1]
+			mac := matches[3]
+			devices = append(devices, Device{
+				IP:  ip,
+				MAC: mac,
+			})
+		}
+	}
+
+	return devices
+}
+
+type Device struct {
+	IP  string `json:"ip"`
+	MAC string `json:"mac"`
 }

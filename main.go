@@ -60,7 +60,7 @@ func main() {
 	// Configurar o middleware CORS
 	handler := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8081"}, // Frontend URL
-		AllowedMethods:   []string{"POST", "GET", "OPTIONS"},
+		AllowedMethods:   []string{"POST", "GET", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true, // Habilita envio de cookies
 	}).Handler(router)
