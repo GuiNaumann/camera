@@ -44,6 +44,8 @@ type Product struct {
 	CameraType string `json:"cameraType"` // Intelbras ou Yoosee
 
 	LocalID int64 `json:"localID"`
+
+	StreamURL string `json:"streamUrl"`
 }
 
 type Local struct {

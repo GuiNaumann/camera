@@ -134,40 +134,39 @@ func (c productRepository) ListProductRepository(
 	filter entities.GeneralFilter,
 	user entities.User,
 ) (*entities.PaginatedListUpdated[entities.Product], error) {
-	//language=sql
+	// Consultas SQL
 	queryCount := `
-	    SELECT COUNT(*)
-	    FROM camera c
-	    WHERE c.is_active = true
-	      AND c.status_code = 0
-	      AND c.id_user = $1`
+        SELECT COUNT(*)
+        FROM camera c
+        WHERE c.is_active = true
+          AND c.status_code = 0
+          AND c.id_user = $1`
 
-	//language=sql
 	query := `
-	SELECT DISTINCT c.id,
-	                c.name,
-	                c.description,
-	                c.ip_address,
-	                c.port,
-	                c.username,
-	                c.password,
-	                c.stream_path,
-	                c.camera_type,
-	                c.is_active,
-	                c.status_code,
-	                c.created_at,
-	                c.modified_at
-	FROM camera c
-	WHERE c.is_active = true
-	  AND c.status_code = 0
-	  AND c.id_user = $1`
+    SELECT DISTINCT c.id,
+                    c.name,
+                    c.description,
+                    c.ip_address,
+                    c.port,
+                    c.username,
+                    c.password,
+                    c.stream_path,
+                    c.camera_type,
+                    c.is_active,
+                    c.status_code,
+                    c.created_at,
+                    c.modified_at
+    FROM camera c
+    WHERE c.is_active = true
+      AND c.status_code = 0
+      AND c.id_user = $1`
 
+	// Filtros opcionais
 	trimSearch := strings.TrimSpace(filter.Search)
 	var searchContaining string
 	var queryParams []interface{}
-	queryParams = append(queryParams, user.ID) // Adiciona id_user ao início dos parâmetros
+	queryParams = append(queryParams, user.ID)
 
-	// Adiciona filtro por nome (search)
 	if trimSearch != "" {
 		searchContaining = "%" + strings.ToLower(trimSearch) + "%"
 		query += ` AND LOWER(c.name) LIKE $2`
@@ -175,31 +174,29 @@ func (c productRepository) ListProductRepository(
 		queryParams = append(queryParams, searchContaining)
 	}
 
-	// Adiciona filtro por local
 	if filter.IDLocal > 0 {
 		query += ` AND c.id_local = $3`
 		queryCount += ` AND c.id_local = $3`
 		queryParams = append(queryParams, filter.IDLocal)
 	}
 
-	// Ordena por data de modificação mais recente
+	// Ordenação e limites
 	query += ` ORDER BY c.modified_at DESC`
-
-	// Aplica o limite de telas (screenCount) se especificado
 	if filter.ScreenCount > 0 {
 		query += fmt.Sprintf(" LIMIT %d", filter.ScreenCount)
 	}
 
+	// Preparação e execução da consulta
 	stmt, err := c.conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Println("[ListCameraRepository] Error PrepareContext", err)
+		log.Println("[ListProductRepository] Error PrepareContext", err)
 		return nil, http_error.NewUnexpectedError(http_error.Unexpected)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.QueryContext(ctx, queryParams...)
 	if err != nil {
-		log.Println("[ListCameraRepository] Error QueryContext", err)
+		log.Println("[ListProductRepository] Error QueryContext", err)
 		return nil, http_error.NewUnexpectedError(http_error.Unexpected)
 	}
 	defer rows.Close()
@@ -223,15 +220,34 @@ func (c productRepository) ListProductRepository(
 			&camera.ModifiedAt,
 		)
 		if err != nil {
-			log.Println("[ListCameraRepository] Error Scan", err)
+			log.Println("[ListProductRepository] Error Scan", err)
 			return nil, http_error.NewUnexpectedError(http_error.Unexpected)
 		}
+
+		// Adiciona a URL RTSP ou HLS na resposta
+		if strings.HasPrefix(camera.StreamPath, "/onvif") {
+			camera.StreamURL = fmt.Sprintf(
+				"http://localhost:8080/hls/%d.m3u8",
+				camera.Id,
+			)
+		} else {
+			camera.StreamURL = fmt.Sprintf(
+				"rtsp://%s:%s@%s:%d%s",
+				camera.Username,
+				camera.Password,
+				camera.IPAddress,
+				camera.Port,
+				camera.StreamPath,
+			)
+		}
+
 		cameras = append(cameras, camera)
 	}
 
+	// Contagem total
 	stmtCount, err := c.conn.PrepareContext(ctx, queryCount)
 	if err != nil {
-		log.Println("[ListCameraRepository] Error stmtCount PrepareContext", err)
+		log.Println("[ListProductRepository] Error stmtCount PrepareContext", err)
 		return nil, http_error.NewUnexpectedError(http_error.Unexpected)
 	}
 	defer stmtCount.Close()
@@ -239,7 +255,7 @@ func (c productRepository) ListProductRepository(
 	var totalCount int64
 	err = stmtCount.QueryRowContext(ctx, queryParams...).Scan(&totalCount)
 	if err != nil {
-		log.Println("[ListCameraRepository] Error stmtCount Scan", err)
+		log.Println("[ListProductRepository] Error stmtCount Scan", err)
 		return nil, http_error.NewUnexpectedError(http_error.Unexpected)
 	}
 
